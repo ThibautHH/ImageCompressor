@@ -1,3 +1,10 @@
+{-
+-- EPITECH PROJECT, 2024
+-- ImageCompressor
+-- File description:
+-- Main
+-}
+
 module Main (main) where
 
 import Options.Applicative

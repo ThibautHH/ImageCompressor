@@ -1,3 +1,10 @@
+{-
+-- EPITECH PROJECT, 2024
+-- ImageCompressor
+-- File description:
+-- Conf
+-}
+
 module Conf (Conf(Conf, number, limit, file), confParser) where
 
 import Options.Applicative
@@ -11,7 +18,8 @@ data Conf = Conf {
 clusterCountOption :: Mod OptionFields a
 clusterCountOption = long "number"
                     <> short 'n'
-                    <> help "Number of colors in the compressed image; the cluster count in the k-means algorithm"
+                    <> help ("Number of colors in the compressed image;" ++
+                            "the cluster count in the k-means algorithm")
                     <> metavar "INT"
 
 convergenceLimitOption :: Mod OptionFields a
