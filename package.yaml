@@ -28,6 +28,8 @@ ghc-options:
 
 library:
   source-dirs: src
+  dependencies:
+    - optparse-applicative
 
 executables:
   ImageCompressor-exe:
