@@ -25,6 +25,7 @@ source-repository head
 
 library
   exposed-modules:
+      Clustering
       Conf
       Lib
   other-modules:
@@ -35,6 +36,7 @@ library
   build-depends:
       base >=4.7 && <5
     , optparse-applicative
+    , random
   default-language: Haskell2010
 
 executable ImageCompressor-exe
@@ -48,6 +50,7 @@ executable ImageCompressor-exe
       ImageCompressor
     , base >=4.7 && <5
     , optparse-applicative
+    , random
   default-language: Haskell2010
 
 test-suite ImageCompressor-test

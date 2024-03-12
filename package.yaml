@@ -30,6 +30,7 @@ library:
   source-dirs: src
   dependencies:
     - optparse-applicative
+    - random
 
 executables:
   ImageCompressor-exe:
@@ -42,6 +43,7 @@ executables:
     dependencies:
     - ImageCompressor
     - optparse-applicative
+    - random
 
 tests:
   ImageCompressor-test:
