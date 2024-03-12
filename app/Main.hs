@@ -18,4 +18,4 @@ main = do
   print conf
   print pixels
   where
-    opts = info (confParser <**> helper) fullDesc
+    opts = info (confParser <**> helper) $ failureCode 84
