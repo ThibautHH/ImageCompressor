@@ -1,6 +1,6 @@
-module Lib (getPixels) where
+module Lib (Pixel(Pixel, position, color), readPixelFile) where
 
-import Data.Maybe (mapMaybe)
+import Text.Read (readMaybe)
 
 data Pixel = Pixel {
     position :: (Int, Int),
@@ -8,11 +8,11 @@ data Pixel = Pixel {
 } deriving (Show)
 
 readPixelTuples :: [String] -> Maybe Pixel
-readPixelTuples [pos, col] = Just (Pixel (read pos) (read col))
+readPixelTuples [pos, col] = Pixel <$> readMaybe pos <*> readMaybe col
 readPixelTuples _ = Nothing
 
 readPixel :: String -> Maybe Pixel
 readPixel = readPixelTuples . words
 
-getPixels :: String -> IO [Pixel]
-getPixels path = mapMaybe readPixel . lines <$> readFile path
+readPixelFile :: String -> IO (Maybe [Pixel])
+readPixelFile path = mapM readPixel . lines <$> readFile path
