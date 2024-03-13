@@ -1,3 +1,10 @@
+{-
+-- EPITECH PROJECT, 2024
+-- ImageCompressor
+-- File description:
+-- Lib
+-}
+
 module Lib (Pixel(Pixel, position, color), readPixelFile) where
 
 import Text.Read (readMaybe)
@@ -5,7 +12,7 @@ import Text.Read (readMaybe)
 data Pixel = Pixel {
     position :: (Int, Int),
     color :: (Int, Int, Int)
-} deriving (Show)
+} deriving (Show, Eq)
 
 readPixelTuples :: [String] -> Maybe Pixel
 readPixelTuples [pos, col] = Pixel <$> readMaybe pos <*> readMaybe col
