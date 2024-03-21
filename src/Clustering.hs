@@ -50,12 +50,11 @@ initClusters k gen ps ls = first (Cluster (color (ps !! fst rand)) []:)
 
 -- remplit les clusters avec les pixels
 fillCluster :: [Pixel] -> [Cluster] -> [Cluster]
-fillCluster [] clusters = clusters
-fillCluster (px:pxs) clusters = fillCluster pxs $ insertIntoCluster clusters px
+fillCluster ps clusters = foldl insertIntoCluster clusters ps
 
 -- insère un pixel dans le cluster le plus proche
 insertIntoCluster :: [Cluster] -> Pixel -> [Cluster]
-insertIntoCluster cls px = cluster{pixels=px : (pixels cluster)} :
+insertIntoCluster cls px = cluster{pixels=px : pixels cluster} :
                            filter (/= cluster) cls
   where
     cluster = findCluster cls px
