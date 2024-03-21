@@ -8,9 +8,9 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DeriveFunctor #-}
 
-module Clustering (initClusters, fillCluster, PrintList(PrintList)) where
+module Clustering (initClusters, fillCluster, PrintList(PrintList), computeNewCentroids) where
 
-import Lib (Pixel(color))
+import Lib (Pixel(..))
 import Data.List (elemIndex, intercalate)
 import Data.Maybe (fromJust)
 
@@ -47,6 +47,30 @@ initClusters k gen ps ls = first (Cluster (color (ps !! fst rand)) []:)
     rand = randomR (0, length ps - 1) gen
     prevClusters = initClusters (k - 1) (snd rand) ps ls
 
+
+-- boucle jusqu'à ce que les centroids bougent moins que la tolérance
+loop :: [Pixel] -> [Cluster] -> Float -> Float -> [Cluster]
+loop pxs cls diff l
+    | diff < l = cls
+    | otherwise = loop pxs (computeNewCentroids $ fillCluster pxs cls) nDiff l
+    where
+        nDiff = l - 1
+-- nDiff devrait être la distance maximale entre les anciens et les nouveaux centroids
+-- ou la somme de toutes les distances entres les anciens et nouveaux centroids
+
+-- calcule la moyenne des pixels d'un cluster
+computeAverage :: Cluster -> (Int, Int, Int)
+computeAverage Cluster { pixels = pxs } = 
+    let (nr, ng, nb) = foldr (\(Pixel (_, _) (r, g, b))
+                                (nr, ng, nb) -> (nr + r, ng + g, nb + b))
+                             (0, 0, 0) pxs
+    in (nr `div` length pxs, ng `div` length pxs, nb `div` length pxs)
+
+-- calcule le nouveau centroid de chaque cluster
+computeNewCentroids :: [Cluster] -> [Cluster]
+computeNewCentroids [] = []
+computeNewCentroids (c:cs) =
+    Cluster (computeAverage c) (pixels c) : computeNewCentroids cs
 
 -- remplit les clusters avec les pixels
 fillCluster :: [Pixel] -> [Cluster] -> [Cluster]
