@@ -8,7 +8,7 @@
 module Main (main) where
 
 import Lib (readPixelFile)
-import Clustering (initClusters, fillCluster)
+import Clustering (initClusters, fillCluster, PrintList(PrintList))
 import Conf (Conf(number, file), confParser)
 
 import System.Exit (exitWith, ExitCode(ExitFailure))
@@ -22,8 +22,8 @@ main = do
   pixels <- readPixelFile $ file conf
   gen <- initStdGen
   case pixels of
-    Just ps -> print $ fillCluster ps $ fst $
-               initClusters (number conf) gen ps []
+    Just ps -> print $ PrintList (fillCluster ps $ fst $
+               initClusters (number conf) gen ps [])
     Nothing -> exitWith $ ExitFailure 84
   where
     opts = info (confParser <**> helper) $ failureCode 84

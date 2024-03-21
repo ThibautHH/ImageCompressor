@@ -5,26 +5,43 @@
 -- Clustering
 -}
 
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DeriveFunctor #-}
 
-{-# LANGUAGE NamedFieldPuns #-}
-
-module Clustering (initClusters, fillCluster) where
+module Clustering (initClusters, fillCluster, PrintList(PrintList)) where
 
 import Lib (Pixel(color))
-import Data.List (elemIndex)
+import Data.List (elemIndex, intercalate)
 import Data.Maybe (fromJust)
 
 import System.Random
 import Data.Bifunctor (Bifunctor(first))
 
+newtype PrintList a = PrintList a deriving (Functor)
+
 data Cluster = Cluster {
     centroid :: (Int, Int, Int),
     pixels :: [Pixel]
-} deriving (Show, Eq)
+} deriving (Eq)
+
+type Clusters = PrintList [Cluster]
+
+type Pixels = PrintList [Pixel]
+
+instance Show Pixels where
+    show (PrintList ps) = intercalate "\n" $ map show ps
+
+instance Show Cluster where
+    show (Cluster col []) = "--\n" ++ show col ++ "\n-"
+    show (Cluster col ps) = "--\n" ++ show col ++ "\n-\n"
+        ++ show (PrintList ps)
+
+instance Show Clusters where
+    show (PrintList cls) = intercalate "\n" $ map show cls
 
 initClusters :: Int -> StdGen -> [Pixel] -> [Cluster] -> ([Cluster], StdGen)
 initClusters 0 gen _ ls = (ls, gen)
-initClusters k gen ps ls = first (Cluster (Lib.color (ps !! fst rand)) []:)
+initClusters k gen ps ls = first (Cluster (color (ps !! fst rand)) []:)
                            prevClusters
   where
     rand = randomR (0, length ps - 1) gen
