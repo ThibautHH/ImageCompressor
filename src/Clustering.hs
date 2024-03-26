@@ -82,9 +82,8 @@ computeNewCentroids (c:cs) =
     Cluster (computeAverage c) (pixels c) : computeNewCentroids cs
 
 -- vide les clusters puis les remplis
-emptyCluster :: [Cluster] -> [Cluster]
-emptyCluster [] = []
-emptyCluster (c:cls) = Cluster (centroid c) ([]) : emptyCluster cls
+emptyClusters :: [Cluster] -> [Cluster]
+emptyClusters = map (\Cluster{centroid} -> Cluster centroid [])
 
 -- remplit les clusters avec les pixels
 fillCluster :: [Pixel] -> [Cluster] -> [Cluster]
