@@ -7,6 +7,7 @@
 
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DeriveFunctor #-}
+{-# LANGUAGE NamedFieldPuns #-}
 
 module Clustering (initClusters, loop, PrintList(PrintList)) where
 
@@ -49,37 +50,29 @@ initClusters k gen ps ls = first (Cluster (color (ps !! fst rand)) []:)
 
 
 -- boucle jusqu'à ce que les centroids bougent moins que la tolérance
---     liste ori   curr cls     prev cls     diff     limit    new cls  
+--     liste ori   curr cls     diff     limit    new cls
 loop :: [Pixel] -> [Cluster] -> Float -> Float -> [Cluster]
 loop pxs cls diff l
     | diff < l = cls
-    | otherwise = loop pxs newClusters newDiff l
+    | otherwise = loop pxs (map fst clusters) (maximum $ map snd clusters) l
     where
-        newClusters = computeNewCentroids $ fillCluster pxs $ emptyCluster cls
-        newDiff = computeDiff newClusters cls
+        clusters = map updateCentroid $ fillCluster pxs $ emptyClusters cls
 -- nDiff devrait être la distance maximale entre les anciens et les nouveaux centroids
 
--- calcule la différence entre les centroids actuels et précédents et renvoie la plus grande
---              curr cls     prev cls    diff
-computeDiff :: [Cluster] -> [Cluster] -> Float
-computeDiff [] [] = 0
-computeDiff (c:cs) (p:ps) =
-    max (getEucDist (centroid c) (centroid p)) (computeDiff cs ps)
-
+tupleAdd :: (Int, Int, Int) -> (Int, Int, Int) -> (Int, Int, Int)
+tupleAdd (a, b, c) (d, e, f) = (a + d, b + e, c + f)
 
 -- calcule la moyenne des pixels d'un cluster
-computeAverage :: Cluster -> (Int, Int, Int)
-computeAverage Cluster { pixels = pxs } = 
-    let (nr, ng, nb) = foldr (\(Pixel (_, _) (r, g, b))
-                                (nr, ng, nb) -> (nr + r, ng + g, nb + b))
-                             (0, 0, 0) pxs
-    in (nr `div` length pxs, ng `div` length pxs, nb `div` length pxs)
+computeAverage :: [Pixel] -> (Int, Int, Int)
+computeAverage pxs = (nr `div` len, ng `div` len, nb `div` len)
+    where
+        (nr, ng, nb) = foldr (tupleAdd . color) (0, 0, 0) pxs
+        len = length pxs
 
 -- calcule le nouveau centroid de chaque cluster
-computeNewCentroids :: [Cluster] -> [Cluster]
-computeNewCentroids [] = []
-computeNewCentroids (c:cs) =
-    Cluster (computeAverage c) (pixels c) : computeNewCentroids cs
+updateCentroid :: Cluster -> (Cluster, Float)
+updateCentroid Cluster{centroid=c, pixels} = (new, dist (centroid new) c)
+    where new = Cluster (computeAverage pixels) pixels
 
 -- vide les clusters puis les remplis
 emptyClusters :: [Cluster] -> [Cluster]
@@ -101,8 +94,8 @@ findCluster :: [Cluster] -> Pixel -> Cluster
 findCluster cls px = cls !! getSmallest (getCentroidDist px cls)
 
 -- renvoie la distance euclidienne entre deux pixels
-getEucDist :: (Int, Int, Int) -> (Int, Int, Int) -> Float
-getEucDist (x1, y1, z1) (x2, y2, z2) = sqrt $ fromIntegral
+dist :: (Int, Int, Int) -> (Int, Int, Int) -> Float
+dist (x1, y1, z1) (x2, y2, z2) = sqrt $ fromIntegral
     $ (x2 - x1) ^ 2 + (y2 - y1) ^ 2 + (z2 - z1) ^ 2
 
 -- renvoie la liste des distances entre un pixel et les centroids des clusters
