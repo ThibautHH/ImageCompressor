@@ -45,7 +45,8 @@ initClusters k gen ps ls = first (Cluster (color (ps !! fst rand)) []:)
                            prevClusters
   where
     rand = randomR (0, length ps - 1) gen
-    prevClusters = initClusters (k - 1) (snd rand) ps ls
+    newPs = take (fst rand) ps ++ drop (fst rand + 1) ps
+    prevClusters = initClusters (k - 1) (snd rand) newPs ls
 
 
 -- boucle jusqu'à ce que les centroids bougent moins que la tolérance
