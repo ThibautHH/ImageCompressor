@@ -9,7 +9,8 @@ NAME := imageCompressor
 
 all:
 	@stack build
-	@ln -sf $(shell stack path --local-install-root)/bin/ImageCompressor-exe ./$(NAME)
+	@ln -sf $(shell stack path --local-install-root)\
+	/bin/ImageCompressor-exe ./$(NAME)
 
 clean:
 	stack clean
