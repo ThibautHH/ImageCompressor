@@ -8,7 +8,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DeriveFunctor #-}
 
-module Clustering (initClusters, fillCluster, PrintList(PrintList), computeNewCentroids, loop) where
+module Clustering (initClusters, loop, PrintList(PrintList)) where
 
 import Lib (Pixel(..))
 import Data.List (elemIndex, intercalate)

@@ -8,7 +8,7 @@
 module Main (main) where
 
 import Lib (readPixelFile)
-import Clustering (initClusters, fillCluster, PrintList(PrintList), computeNewCentroids, loop)
+import Clustering (initClusters, PrintList(PrintList), loop)
 import Conf (Conf(number, limit, file), confParser)
 
 import System.Exit (exitWith, ExitCode(ExitFailure))
@@ -21,10 +21,10 @@ main = do
   conf <- execParser opts
   pixels <- readPixelFile $ file conf
   gen <- initStdGen
+  let l = limit conf
   case pixels of
-    Just ps -> print $ PrintList (loop ps (computeNewCentroids $
-      fillCluster ps $ fst $
-      initClusters (number conf) gen ps [])  ((limit conf) + 1) (limit conf))
+    Just ps -> print $ PrintList
+      (loop ps (fst $ initClusters (number conf) gen ps []) (l + 1) 1)
     Nothing -> exitWith $ ExitFailure 84
   where
     opts = info (confParser <**> helper) $ failureCode 84
