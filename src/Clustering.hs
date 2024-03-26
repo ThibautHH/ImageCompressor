@@ -7,6 +7,7 @@
 
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DeriveFunctor #-}
+{-# OPTIONS_GHC -Wno-type-defaults #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Clustering (initClusters, loop, PrintList(PrintList)) where
