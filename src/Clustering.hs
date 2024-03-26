@@ -58,7 +58,6 @@ loop pxs cls diff l
     | otherwise = loop pxs (map fst clusters) (maximum $ map snd clusters) l
     where
         clusters = map updateCentroid $ fillCluster pxs $ emptyClusters cls
--- nDiff devrait être la distance maximale entre les anciens et les nouveaux centroids
 
 tupleAdd :: (Int, Int, Int) -> (Int, Int, Int) -> (Int, Int, Int)
 tupleAdd (a, b, c) (d, e, f) = (a + d, b + e, c + f)
@@ -95,7 +94,8 @@ minDistance = fst . foldl1 (\a@(_, x) b@(_, y) -> if y < x then b else a)
 
 -- renvoie le cluster avec le centroid le plus proche du pixel
 findCluster :: Pixel -> [Cluster] -> Cluster
-findCluster px cls = minDistance . zip cls $ map (dist (color px) . centroid) cls
+findCluster px cls = minDistance . zip cls $ distances
+    where distances = map (dist (color px) . centroid) cls
 
 -- renvoie la distance euclidienne entre deux pixels
 dist :: (Int, Int, Int) -> (Int, Int, Int) -> Float
