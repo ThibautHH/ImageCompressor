@@ -8,7 +8,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE DeriveFunctor #-}
 
-module Clustering (initClusters, fillCluster, PrintList(PrintList), computeNewCentroids) where
+module Clustering (initClusters, fillCluster, PrintList(PrintList), computeNewCentroids, loop) where
 
 import Lib (Pixel(..))
 import Data.List (elemIndex, intercalate)
@@ -49,14 +49,23 @@ initClusters k gen ps ls = first (Cluster (color (ps !! fst rand)) []:)
 
 
 -- boucle jusqu'à ce que les centroids bougent moins que la tolérance
+--     liste ori   curr cls     prev cls     diff     limit    new cls  
 loop :: [Pixel] -> [Cluster] -> Float -> Float -> [Cluster]
 loop pxs cls diff l
     | diff < l = cls
-    | otherwise = loop pxs (computeNewCentroids $ fillCluster pxs cls) nDiff l
+    | otherwise = loop pxs newClusters newDiff l
     where
-        nDiff = l - 1
+        newClusters = computeNewCentroids $ fillCluster pxs $ emptyCluster cls
+        newDiff = computeDiff newClusters cls
 -- nDiff devrait être la distance maximale entre les anciens et les nouveaux centroids
--- ou la somme de toutes les distances entres les anciens et nouveaux centroids
+
+-- calcule la différence entre les centroids actuels et précédents et renvoie la plus grande
+--              curr cls     prev cls    diff
+computeDiff :: [Cluster] -> [Cluster] -> Float
+computeDiff [] [] = 0
+computeDiff (c:cs) (p:ps) =
+    max (getEucDist (centroid c) (centroid p)) (computeDiff cs ps)
+
 
 -- calcule la moyenne des pixels d'un cluster
 computeAverage :: Cluster -> (Int, Int, Int)
@@ -71,6 +80,11 @@ computeNewCentroids :: [Cluster] -> [Cluster]
 computeNewCentroids [] = []
 computeNewCentroids (c:cs) =
     Cluster (computeAverage c) (pixels c) : computeNewCentroids cs
+
+-- vide les clusters puis les remplis
+emptyCluster :: [Cluster] -> [Cluster]
+emptyCluster [] = []
+emptyCluster (c:cls) = Cluster (centroid c) ([]) : emptyCluster cls
 
 -- remplit les clusters avec les pixels
 fillCluster :: [Pixel] -> [Cluster] -> [Cluster]
