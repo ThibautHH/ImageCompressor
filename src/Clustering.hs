@@ -12,8 +12,7 @@
 module Clustering (initClusters, loop, PrintList(PrintList)) where
 
 import Lib (Pixel(..))
-import Data.List (elemIndex, intercalate)
-import Data.Maybe (fromJust)
+import Data.List (intercalate)
 
 import System.Random
 import Data.Bifunctor (Bifunctor(first))
@@ -87,23 +86,16 @@ insertIntoCluster :: [Cluster] -> Pixel -> [Cluster]
 insertIntoCluster cls px = cluster{pixels=px : pixels cluster} :
                            filter (/= cluster) cls
   where
-    cluster = findCluster cls px
+    cluster = findCluster px cls
+
+minDistance :: Ord b => [(a, b)] -> a
+minDistance = fst . foldl1 (\a@(_, x) b@(_, y) -> if y < x then b else a)
 
 -- renvoie le cluster avec le centroid le plus proche du pixel
-findCluster :: [Cluster] -> Pixel -> Cluster
-findCluster cls px = cls !! getSmallest (getCentroidDist px cls)
+findCluster :: Pixel -> [Cluster] -> Cluster
+findCluster px cls = minDistance . zip cls $ map (dist (color px) . centroid) cls
 
 -- renvoie la distance euclidienne entre deux pixels
 dist :: (Int, Int, Int) -> (Int, Int, Int) -> Float
 dist (x1, y1, z1) (x2, y2, z2) = sqrt $ fromIntegral
     $ (x2 - x1) ^ 2 + (y2 - y1) ^ 2 + (z2 - z1) ^ 2
-
--- renvoie la liste des distances entre un pixel et les centroids des clusters
-getCentroidDist :: Pixel -> [Cluster] -> [Float]
-getCentroidDist _ [] = []
-getCentroidDist px (c:cls) = getEucDist (color px) (centroid c) :
-                             getCentroidDist px cls
-
--- renvoie l'index de la plus petite distance = l'index du cluster le plus proche
-getSmallest :: [Float] -> Int
-getSmallest distances = fromJust $ elemIndex (minimum distances) distances
